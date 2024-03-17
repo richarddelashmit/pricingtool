@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Item Details and Cost Calculator</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f0f8ff; color: #333; margin: 0; padding: 0; }
+        .container { max-width: 1200px; margin: auto; padding: 20px; display: flex; justify-content: space-between; gap: 20px; }
+        .column { flex: 1; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #005f73; }
+        input, select { display: block; width: 100%; padding: 10px; margin-top: 5px; box-sizing: border-box; border: 2px solid #88bdbc; border-radius: 4px; transition: border-color 0.3s; }
+        input:focus, select:focus { outline: none; border-color: #34a0a4; }
+        button { display: block; width: 100%; padding: 10px; margin-top: 20px; background-color: #34a0a4; color: #fff; border: none; border-radius: 4px; cursor: pointer; transition: background-color 0.3s; }
+        button:hover { background-color: #005f73; }
+        h2, h3 { color: #0077b6; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="column">
+        <h2>Item Details</h2>
+        <div class="form-group">
+            <label for="skuNumber">SKU #:</label>
+            <input type="text" id="skuNumber" required>
+        </div>
+        <div class="form-group">
+            <label for="volume">Volume:</label>
+            <input type="text" id="volume" required>
+        </div>
+        <div class="form-group">
+            <label for="labelDescription">Label Description:</label>
+            <input type="text" id="labelDescription" required>
+        </div>
+        <div class="form-group">
+            <label for="auburnSpec">Auburn Spec:</label>
+            <input type="text" id="auburnSpec" required>
+        </div>
+        <div class="form-group">
+            <label for="antennaSize">Antenna Size:</label>
+            <input type="text" id="antennaSize" required>
+        </div>
+        <div class="form-group">
+            <label for="tagLabelSize">Tag/Label Size:</label>
+            <input type="text" id="tagLabelSize" required>
+        </div>
+    </div>   
+    <div class="column">
+        <h2>Cost and Price Calculator</h2>
+        <div class="form-group">
+            <label for="cost">Cost ($):</label>
+            <input type="number" id="cost" step="0.0001" required placeholder="Enter cost" oninput="calculateAll()">
+        </div>
+        <div class="form-group">
+            <label for="serviceBureau">Service Bureau?</label>
+            <select id="serviceBureau" onchange="calculateAll()">
+                <option value="No">No</option>
+                <option value="Yes">Yes</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="tariff">Tariff?</label>
+            <select id="tariff" onchange="calculateAll()">
+                <option value="No">No</option>
+                <option value="Yes">Yes</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="tariffValue">Tariff $:</label>
+            <input type="text" id="tariffValue" readonly>
+        </div>
+        <div class="form-group">
+            <label for="finalCost">Final Cost:</label>
+            <input type="text" id="finalCost" readonly>
+        </div>
+        <div class="form-group">
+            <label for="transferPrice">Transfer Price:</label>
+            <input type="text" id="transferPrice" readonly>
+        </div>
+        <div class="form-group">
+            <label for="targetRegionalMargin">Target Regional Margin (%):</label>
+            <input type="number" id="targetRegionalMargin" required placeholder="Enter margin %" oninput="formatMarginInput()">
+        </div>
+        <button onclick="calculateAll()">Calculate</button>
+        <h3>Results</h3>
+        <div id="finalCost"></div>
+        <div id="salesPrice"></div>
+    </div>
+</div>
+<script>
+function calculateAll() {
+    const cost = parseFloat(document.getElementById('cost').value) || 0;
+    const serviceBureau = document.getElementById('serviceBureau').value === "Yes" ? 0.0004 : 0;
+    const tariff = document.getElementById('tariff').value;
+    const tariffValue = tariff === "Yes" ? cost * 0.25 : 0;
+    document.getElementById('tariffValue').value = tariffValue.toFixed(4);
+    const baseTransferPrice = (cost + (serviceBureau ? 0.0004 : 0)) * 1.05 * 1.107;
+    const transferPrice = baseTransferPrice + tariffValue;
+    document.getElementById('transferPrice').value = transferPrice.toFixed(4);
+    const finalCost = cost + serviceBureau + tariffValue;
+    document.getElementById('finalCost').value = finalCost.toFixed(4);
+    
+    const targetRegionalMargin = parseFloat(document.getElementById('targetRegionalMargin').value) || 0;
+    const sellingPrice = transferPrice * (1 + targetRegionalMargin / 100);
+    document.getElementById('salesPrice').innerText = `Selling Price: $${sellingPrice.toFixed(2)}`;
+}
+
+function formatMarginInput() {
+    const marginInput = document.getElementById('targetRegionalMargin');
+    const value = marginInput.value.replace(/[^\\d.]/g, '') + '%';
+    marginInput.value = value;
+}
+</script>
+</body>
+</html>
